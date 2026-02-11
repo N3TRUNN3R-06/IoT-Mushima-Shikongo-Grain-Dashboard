@@ -2,11 +2,10 @@ const channelID = "3258996";
 const readAPI = "KQOVOAKJ6NVNWL3K";
 const weatherApiKey = "353c8dee2b841991e6cb38f83b4736de";
 
-// Replace with real farm coordinates
 const lat = -17.5;
 const lon = 17.0;
 
-const url =
+const dataURL =
 `https://api.thingspeak.com/channels/${channelID}/feeds.json?api_key=${readAPI}&results=24`;
 
 const weatherURL =
@@ -15,14 +14,13 @@ const weatherURL =
 let tempChart, soilChart;
 
 async function fetchData() {
-    const response = await fetch(url);
+    const response = await fetch(dataURL);
     const data = await response.json();
     const feeds = data.feeds;
     if (!feeds) return;
 
     const temps = feeds.map(f => parseFloat(f.field1));
     const soils = feeds.map(f => parseFloat(f.field3));
-    const irrigation = feeds.at(-1).field6;
 
     const latestTemp = temps.at(-1);
     const latestSoil = soils.at(-1);
@@ -32,13 +30,9 @@ async function fetchData() {
 
     const avgTemp =
         (temps.reduce((a,b)=>a+b,0)/temps.length).toFixed(1);
-    document.getElementById("tempStats").innerText =
-        `Avg: ${avgTemp}°C`;
 
-    let soilStress = "Optimal";
-    if (latestSoil < 30) soilStress = "Drought Risk";
-    if (latestSoil > 80) soilStress = "Waterlogging Risk";
-    document.getElementById("soilStress").innerText = soilStress;
+    document.getElementById("tempStats").innerText =
+        `24-sample Avg: ${avgTemp}°C`;
 
     let cropScore = 100;
     if (latestSoil < 30) cropScore -= 25;
@@ -47,83 +41,77 @@ async function fetchData() {
 
     document.getElementById("cropScore").innerText = cropScore + "/100";
 
-    const irrigationEl = document.getElementById("irrigation");
-    irrigationEl.innerText = irrigation == 1 ? "REQUIRED" : "OK";
-    irrigationEl.className =
-        irrigation == 1 ? "status alert" : "status ok";
-
     document.getElementById("systemHealth").innerText =
-        cropScore > 70 ? "SYSTEM HEALTH: STABLE" :
-        cropScore > 40 ? "SYSTEM HEALTH: WARNING" :
-        "SYSTEM HEALTH: CRITICAL";
+        cropScore > 70 ? "SYSTEM: STABLE" :
+        cropScore > 40 ? "SYSTEM: WARNING" :
+        "SYSTEM: CRITICAL";
 
     updateCharts(temps, soils);
-
-    document.getElementById("analyticsData").innerText =
-`24-Sample Temperature Avg: ${avgTemp}°C
-Soil Trend: ${soils.at(-1) > soils.at(-2) ? "Rising" : "Falling"}
-Yield Risk Estimate: ${100 - cropScore}%`;
 }
 
 async function fetchWeather() {
     const response = await fetch(weatherURL);
     const data = await response.json();
-
     const forecast = data.list[0];
+
     const temp = forecast.main.temp;
     const condition = forecast.weather[0].main;
     const rainProb = forecast.pop * 100;
-    const wind = forecast.wind.speed;
 
     document.getElementById("weatherTemp").innerText = temp + " °C";
     document.getElementById("weatherCondition").innerText = condition;
     document.getElementById("rainProbability").innerText =
-        "Rain Prob: " + rainProb.toFixed(0) + "%";
-    document.getElementById("windSpeed").innerText =
-        "Wind: " + wind + " m/s";
-
-    const alert = document.getElementById("weatherAlert");
-
-    if (rainProb > 60) {
-        alert.innerText =
-            "⚠ Heavy Rain Expected — Irrigation Suspended";
-        alert.classList.remove("hidden");
-    }
-    else if (temp > 40) {
-        alert.innerText =
-            "⚠ Extreme Heat Warning";
-        alert.classList.remove("hidden");
-    }
-    else {
-        alert.classList.add("hidden");
-    }
+        `Rain Probability: ${rainProb.toFixed(0)}%`;
 }
 
 function updateCharts(tempData, soilData) {
+
+    const labels = tempData.map((_, i) => i);
+
     if (!tempChart) {
+
         tempChart = new Chart(document.getElementById("tempChart"), {
             type: "line",
             data: {
-                labels: tempData.map((_,i)=>i),
+                labels,
                 datasets: [{
+                    label: "Temperature (°C)",
                     data: tempData,
                     borderColor: "#7c3aed",
+                    backgroundColor: "rgba(124,58,237,0.1)",
+                    fill: true,
                     tension: 0.4
                 }]
+            },
+            options: {
+                animation: { duration: 1200 },
+                plugins: {
+                    legend: { display: true }
+                }
             }
         });
 
         soilChart = new Chart(document.getElementById("soilChart"), {
             type: "line",
             data: {
-                labels: soilData.map((_,i)=>i),
+                labels,
                 datasets: [{
+                    label: "Soil Moisture (%)",
                     data: soilData,
                     borderColor: "#111",
+                    backgroundColor: "rgba(0,0,0,0.05)",
+                    fill: true,
                     tension: 0.4
                 }]
+            },
+            options: {
+                animation: { duration: 1200 },
+                plugins: {
+                    legend: { display: true }
+                }
             }
         });
+
     } else {
         tempChart.data.datasets[0].data = tempData;
         soilChart.data.datasets[0].data = soilData;
@@ -131,20 +119,6 @@ function updateCharts(tempData, soilData) {
         soilChart.update();
     }
 }
-
-function openModal() {
-    document.getElementById("analyticsModal").style.display = "block";
-}
-
-function closeModal() {
-    document.getElementById("analyticsModal").style.display = "none";
-}
-
-document.addEventListener("mousemove", e => {
-    const glow = document.querySelector(".cursor-glow");
-    glow.style.left = e.clientX + "px";
-    glow.style.top = e.clientY + "px";
-});
 
 fetchData();
 fetchWeather();

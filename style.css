@@ -1,98 +1,91 @@
 body {
     margin: 0;
     font-family: 'Segoe UI', sans-serif;
-    background: #ffffff;
+    background: #f4f6f8;
     color: #111;
 }
 
-.cursor-glow {
-    position: fixed;
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 70%);
-    pointer-events: none;
-    transform: translate(-50%, -50%);
-    z-index: 0;
+.container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 60px 30px;
 }
 
 header {
-    padding: 20px;
-    background: linear-gradient(90deg, #7c3aed, #a855f7);
-    color: white;
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    margin-bottom: 60px;
 }
 
-.system-badge {
-    background: rgba(255,255,255,0.2);
-    padding: 8px 15px;
-    border-radius: 20px;
+h1 {
+    margin: 0;
+    font-weight: 600;
 }
 
-.weather-alert {
-    background: #dc2626;
+.subtitle {
+    color: #666;
+    margin-top: 5px;
+}
+
+.badge {
+    background: #7c3aed;
     color: white;
-    padding: 10px;
-    text-align: center;
-    font-weight: bold;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 13px;
 }
 
-.hidden { display: none; }
-
-.dashboard {
+.metrics {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 20px;
-    padding: 40px;
+    gap: 30px;
+    margin-bottom: 60px;
 }
 
-.metric-card {
-    background: #f8f8f8;
-    padding: 25px;
-    border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+.card {
+    background: white;
+    padding: 30px;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
     transition: 0.3s ease;
 }
 
-.metric-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 20px 40px rgba(124,58,237,0.2);
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 50px rgba(124,58,237,0.1);
+}
+
+.large {
+    grid-column: span 2;
+}
+
+.value {
+    font-size: 26px;
+    font-weight: 600;
+    margin: 10px 0;
+}
+
+.meta {
+    color: #666;
+    font-size: 14px;
 }
 
 .score {
-    font-size: 40px;
-    font-weight: bold;
+    font-size: 50px;
     color: #7c3aed;
+    font-weight: bold;
 }
-
-.status.alert { color: #dc2626; }
-.status.ok { color: #16a34a; }
 
 .charts {
-    padding: 0 40px 40px 40px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
 }
 
-.analytics-btn {
-    margin: 20px 40px;
-    padding: 12px 20px;
-    background: #7c3aed;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-}
-
-.modal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.4);
-}
-
-.modal-content {
+.chart-card {
     background: white;
-    margin: 10% auto;
     padding: 30px;
-    width: 50%;
-    border-radius: 15px;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
 }

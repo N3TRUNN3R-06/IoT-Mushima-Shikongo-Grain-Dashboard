@@ -7,62 +7,59 @@
 </head>
 <body>
 
-<div class="cursor-glow"></div>
+<div class="container">
 
-<header>
-    <h1>Mushima-Shikongo Grain</h1>
-    <div id="systemHealth" class="system-badge">SYSTEM HEALTH: --</div>
-</header>
+    <header>
+        <div>
+            <h1>Mushima-Shikongo Grain</h1>
+            <p class="subtitle">Smart Agriculture Intelligence Platform</p>
+        </div>
+        <div id="systemHealth" class="badge">SYSTEM: --</div>
+    </header>
 
-<div id="weatherAlert" class="weather-alert hidden"></div>
+    <section class="metrics">
 
-<section class="dashboard">
+        <div class="card large">
+            <h3>Crop Condition Score</h3>
+            <div class="score" id="cropScore">--</div>
+            <p id="soilStress"></p>
+        </div>
 
-    <div class="metric-card">
-        <h3>Crop Condition Score</h3>
-        <div class="score" id="cropScore">--</div>
-    </div>
+        <div class="card">
+            <h3>Temperature</h3>
+            <p class="value" id="temperature">-- °C</p>
+            <p class="meta" id="tempStats"></p>
+        </div>
 
-    <div class="metric-card">
-        <h3>Soil Moisture</h3>
-        <p id="soil">-- %</p>
-        <span id="soilStress"></span>
-    </div>
+        <div class="card">
+            <h3>Soil Moisture</h3>
+            <p class="value" id="soil">-- %</p>
+        </div>
 
-    <div class="metric-card">
-        <h3>Temperature</h3>
-        <p id="temperature">-- °C</p>
-        <span id="tempStats"></span>
-    </div>
+        <div class="card">
+            <h3>Irrigation</h3>
+            <p class="value" id="irrigation"></p>
+        </div>
 
-    <div class="metric-card">
-        <h3>Irrigation</h3>
-        <p id="irrigation" class="status"></p>
-    </div>
+        <div class="card">
+            <h3>Weather</h3>
+            <p class="value" id="weatherTemp">-- °C</p>
+            <p class="meta" id="weatherCondition"></p>
+            <p class="meta" id="rainProbability"></p>
+        </div>
 
-    <div class="metric-card weather-card">
-        <h3>Weather Forecast</h3>
-        <p id="weatherTemp">-- °C</p>
-        <p id="weatherCondition">--</p>
-        <p id="rainProbability">Rain Prob: --%</p>
-        <p id="windSpeed">Wind: -- m/s</p>
-    </div>
+    </section>
 
-</section>
+    <section class="charts">
+        <div class="chart-card">
+            <canvas id="tempChart"></canvas>
+        </div>
 
-<section class="charts">
-    <canvas id="tempChart"></canvas>
-    <canvas id="soilChart"></canvas>
-</section>
+        <div class="chart-card">
+            <canvas id="soilChart"></canvas>
+        </div>
+    </section>
 
-<button class="analytics-btn" onclick="openModal()">Advanced Analytics</button>
-
-<div id="analyticsModal" class="modal">
-    <div class="modal-content">
-        <h2>Advanced Farm Analytics</h2>
-        <p id="analyticsData"></p>
-        <button onclick="closeModal()">Close</button>
-    </div>
 </div>
 
 <script src="script.js"></script>
