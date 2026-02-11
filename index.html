@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mushima-Shikongo Grain Intelligence</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="cursor-glow"></div>
+
+<header>
+    <h1>Mushima-Shikongo Grain</h1>
+    <div id="systemHealth" class="system-badge">SYSTEM HEALTH: --</div>
+</header>
+
+<div id="weatherAlert" class="weather-alert hidden"></div>
+
+<section class="dashboard">
+
+    <div class="metric-card">
+        <h3>Crop Condition Score</h3>
+        <div class="score" id="cropScore">--</div>
+    </div>
+
+    <div class="metric-card">
+        <h3>Soil Moisture</h3>
+        <p id="soil">-- %</p>
+        <span id="soilStress"></span>
+    </div>
+
+    <div class="metric-card">
+        <h3>Temperature</h3>
+        <p id="temperature">-- °C</p>
+        <span id="tempStats"></span>
+    </div>
+
+    <div class="metric-card">
+        <h3>Irrigation</h3>
+        <p id="irrigation" class="status"></p>
+    </div>
+
+    <div class="metric-card weather-card">
+        <h3>Weather Forecast</h3>
+        <p id="weatherTemp">-- °C</p>
+        <p id="weatherCondition">--</p>
+        <p id="rainProbability">Rain Prob: --%</p>
+        <p id="windSpeed">Wind: -- m/s</p>
+    </div>
+
+</section>
+
+<section class="charts">
+    <canvas id="tempChart"></canvas>
+    <canvas id="soilChart"></canvas>
+</section>
+
+<button class="analytics-btn" onclick="openModal()">Advanced Analytics</button>
+
+<div id="analyticsModal" class="modal">
+    <div class="modal-content">
+        <h2>Advanced Farm Analytics</h2>
+        <p id="analyticsData"></p>
+        <button onclick="closeModal()">Close</button>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
