@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Mushima-Shikongo Grain | Smart Agriculture Monitoring</title>
+    <title>Mushima-Shikongo Grain | Monitoring</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Chart.js MUST load before script.js -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <link rel="stylesheet" href="style.css">
@@ -14,34 +14,28 @@
 
 <main class="dashboard">
 
-    <!-- HEADER -->
     <header class="topbar">
         <div>
             <h1>Mushima-Shikongo Grain</h1>
-            <p class="subtitle">Smart Agriculture Monitoring Platform</p>
+            <p class="subtitle">Smart Agriculture Monitoring</p>
         </div>
         <div id="status" class="status stable">
             SYSTEM: STABLE
         </div>
     </header>
 
-    <!-- HEALTH -->
     <section class="health-card">
         <h3>Crop Health Score</h3>
-
         <div class="health-number">
             <span id="health">--</span>
             <small>/100</small>
         </div>
-
         <div class="health-bar">
             <div id="healthFill"></div>
         </div>
     </section>
 
-    <!-- METRICS -->
     <section class="metrics-grid">
-
         <div class="metric">
             <label>Temperature</label>
             <div id="temp" class="value">--</div>
@@ -71,12 +65,9 @@
             <label>Irrigation</label>
             <div id="irrigation" class="value">--</div>
         </div>
-
     </section>
 
-    <!-- CHARTS -->
     <section class="charts-section">
-
         <div class="chart-card">
             <h3>Temperature Trend</h3>
             <canvas id="tempChart"></canvas>
@@ -86,7 +77,6 @@
             <h3>Soil Moisture Trend</h3>
             <canvas id="soilChart"></canvas>
         </div>
-
     </section>
 
 </main>
