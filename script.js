@@ -99,35 +99,50 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function updateAlerts(health, soil) {
 
-        let currentLevel = "stable";
+    let currentLevel = "stable";
 
-        if (health < 40) currentLevel = "critical";
-        else if (health < 70) currentLevel = "warning";
+    if (health < 40) currentLevel = "critical";
+    else if (health < 70) currentLevel = "warning";
 
-        if (currentLevel !== lastAlertLevel) {
-
-            if (currentLevel === "warning") {
-                showToast("⚠ Soil moisture suboptimal. Monitor closely.", "warning");
-            }
-
-            if (currentLevel === "critical") {
-                showToast("🚨 CRITICAL: Immediate irrigation required!", "critical");
-            }
-
-            lastAlertLevel = currentLevel;
+    // 🚀 Force alert on first load if critical
+    if (lastAlertLevel === null) {
+        if (currentLevel === "critical") {
+            showToast("🚨 CRITICAL: Immediate irrigation required!", "critical");
+        }
+        else if (currentLevel === "warning") {
+            showToast("⚠ Soil moisture suboptimal. Monitor closely.", "warning");
         }
 
-        // Irrigation text display
-        const irrigationEl = document.getElementById("irrigation");
-
-        if (soil <= 25) {
-            irrigationEl.innerText = "IRRIGATION REQUIRED";
-            irrigationEl.style.color = "#ef4444";
-        } else {
-            irrigationEl.innerText = "OK";
-            irrigationEl.style.color = "#22c55e";
-        }
+        lastAlertLevel = currentLevel;
+        return;
     }
+
+    // Normal state-change alerts
+    if (currentLevel !== lastAlertLevel) {
+
+        if (currentLevel === "critical") {
+            showToast("🚨 CRITICAL: Immediate irrigation required!", "critical");
+        }
+
+        if (currentLevel === "warning") {
+            showToast("⚠ Soil moisture suboptimal. Monitor closely.", "warning");
+        }
+
+        lastAlertLevel = currentLevel;
+    }
+
+    // Irrigation text update
+    const irrigationEl = document.getElementById("irrigation");
+
+    if (soil <= 25) {
+        irrigationEl.innerText = "IRRIGATION REQUIRED";
+        irrigationEl.style.color = "#ef4444";
+    } else {
+        irrigationEl.innerText = "OK";
+        irrigationEl.style.color = "#22c55e";
+    }
+}
+
 
     function showToast(message, type) {
 
