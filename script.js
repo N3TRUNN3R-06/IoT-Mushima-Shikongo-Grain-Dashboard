@@ -1,101 +1,181 @@
-const channelID = "3258996";
-const readAPI = "KQOVOAKJ6NVNWL3K";
+document.addEventListener("DOMContentLoaded", () => {
 
-const url =
-`https://api.thingspeak.com/channels/${channelID}/feeds.json?api_key=${readAPI}&results=20`;
+    const channelID = "3258996";
+    const readAPI = "KQOVOAKJ6NVNWL3K";
 
-let tempChart, soilChart;
+    const url =
+      `https://api.thingspeak.com/channels/${channelID}/feeds.json?api_key=${readAPI}&results=20`;
 
-async function fetchData() {
+    let tempChart, soilChart;
 
-    const response = await fetch(url);
-    const data = await response.json();
+    async function fetchData() {
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
 
-    const feeds = data.feeds;
-    if (!feeds || feeds.length === 0) return;
+            if (!data.feeds || data.feeds.length === 0) return;
 
-    const temperatures = feeds.map(f => parseFloat(f.field1) || 0);
-    const soilValues = feeds.map(f => parseFloat(f.field3) || 0);
-    const irrigation = feeds[feeds.length - 1].field6;
+            const feeds = data.feeds;
+            const latest = feeds[feeds.length - 1];
 
-    document.getElementById("temp").innerText =
-        temperatures[temperatures.length - 1] + " °C";
+            const temp = parseFloat(latest.field1) || 0;
+            const hum  = parseFloat(latest.field2) || 0;
+            const soil = parseFloat(latest.field3) || 0;
+            const rain = parseInt(latest.field4) || 0;
+            const light = parseInt(latest.field5) || 0;
+            const irrigationFlag = parseInt(latest.field6) || 0;
 
-    document.getElementById("soil").innerText =
-        soilValues[soilValues.length - 1] + " %";
+            updateUI(temp, hum, soil, rain, light, irrigationFlag);
+            updateCharts(feeds);
 
-    const irrigationEl = document.getElementById("irrigation");
-
-    if (irrigation == 1) {
-        irrigationEl.innerText = "REQUIRED";
-    } else {
-        irrigationEl.innerText = "OK";
+        } catch (error) {
+            console.error("Fetch Error:", error);
+        }
     }
 
-    updateCharts(temperatures, soilValues);
-}
+    function calculateHealth(temp, hum, soil, rain) {
 
-function updateCharts(tempData, soilData) {
+        let score = 100;
 
-    const labels = tempData.map((_, i) => i + 1);
+        // Soil is primary factor
+        if (soil <= 5) score -= 80;
+        else if (soil <= 15) score -= 60;
+        else if (soil <= 25) score -= 40;
+        else if (soil <= 35) score -= 20;
 
-    if (!tempChart) {
+        // Temperature stress
+        if (temp >= 45) score -= 25;
+        else if (temp >= 40) score -= 15;
 
-        tempChart = new Chart(
-            document.getElementById("tempChart"),
-            {
-                type: "line",
-                data: {
-                    labels,
-                    datasets: [{
-                        label: "Temperature (°C)",
-                        data: tempData,
-                        borderColor: "#7c3aed",
-                        backgroundColor: "rgba(124,58,237,0.15)",
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            }
-        );
+        // Humidity stress
+        if (hum <= 20) score -= 10;
+        if (hum >= 90) score -= 10;
 
-        soilChart = new Chart(
-            document.getElementById("soilChart"),
-            {
-                type: "line",
-                data: {
-                    labels,
-                    datasets: [{
-                        label: "Soil Moisture (%)",
-                        data: soilData,
-                        borderColor: "#000000",
-                        backgroundColor: "rgba(0,0,0,0.1)",
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            }
-        );
+        // Rain slightly improves dryness
+        if (soil < 25 && rain === 1) score += 10;
 
-    } else {
-        tempChart.data.labels = labels;
-        soilChart.data.labels = labels;
-
-        tempChart.data.datasets[0].data = tempData;
-        soilChart.data.datasets[0].data = soilData;
-
-        tempChart.update();
-        soilChart.update();
+        return Math.max(0, Math.min(100, score));
     }
-}
 
-fetchData();
-setInterval(fetchData, 15000);
+    function updateUI(temp, hum, soil, rain, light, irrigationFlag) {
+
+        document.getElementById("temp").innerText = `${temp.toFixed(1)} °C`;
+        document.getElementById("humidity").innerText = `${hum.toFixed(1)} %`;
+        document.getElementById("soil").innerText = `${soil.toFixed(0)} %`;
+        document.getElementById("rain").innerText = rain ? "YES" : "NO";
+        document.getElementById("light").innerText = light ? "BRIGHT" : "DARK";
+
+        // 🔥 REAL HEALTH LOGIC
+        const health = calculateHealth(temp, hum, soil, rain);
+
+        document.getElementById("health").innerText = health;
+        document.getElementById("healthFill").style.width = health + "%";
+
+        updateStatus(health);
+
+        // Irrigation display
+        const irrigationEl = document.getElementById("irrigation");
+
+        if (soil < 25 && irrigationFlag === 1) {
+            irrigationEl.innerText = "IRRIGATION REQUIRED";
+            irrigationEl.style.color = "#ef4444";
+        }
+        else if (soil < 25) {
+            irrigationEl.innerText = "LOW SOIL – MONITOR";
+            irrigationEl.style.color = "#fbbf24";
+        }
+        else {
+            irrigationEl.innerText = "OK";
+            irrigationEl.style.color = "#22c55e";
+        }
+    }
+
+    function updateStatus(health) {
+
+        const statusEl = document.getElementById("status");
+
+        if (health >= 70) {
+            statusEl.className = "status stable";
+            statusEl.innerText = "SYSTEM: STABLE";
+        }
+        else if (health >= 40) {
+            statusEl.className = "status warning";
+            statusEl.innerText = "SYSTEM: WARNING";
+        }
+        else {
+            statusEl.className = "status critical";
+            statusEl.innerText = "SYSTEM: CRITICAL – IRRIGATE NOW";
+        }
+    }
+
+    function updateCharts(feeds) {
+
+        const labels = feeds.map(f =>
+            new Date(f.created_at).toLocaleTimeString()
+        );
+
+        const temps = feeds.map(f => parseFloat(f.field1) || 0);
+        const soils = feeds.map(f => parseFloat(f.field3) || 0);
+
+        if (!tempChart) {
+
+            tempChart = new Chart(
+                document.getElementById("tempChart"),
+                {
+                    type: "line",
+                    data: {
+                        labels,
+                        datasets: [{
+                            label: "Temperature (°C)",
+                            data: temps,
+                            borderColor: "#7c3aed",
+                            backgroundColor: "rgba(124,58,237,0.15)",
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                }
+            );
+
+            soilChart = new Chart(
+                document.getElementById("soilChart"),
+                {
+                    type: "line",
+                    data: {
+                        labels,
+                        datasets: [{
+                            label: "Soil Moisture (%)",
+                            data: soils,
+                            borderColor: "#22c55e",
+                            backgroundColor: "rgba(34,197,94,0.15)",
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                }
+            );
+
+        } else {
+
+            tempChart.data.labels = labels;
+            soilChart.data.labels = labels;
+
+            tempChart.data.datasets[0].data = temps;
+            soilChart.data.datasets[0].data = soils;
+
+            tempChart.update();
+            soilChart.update();
+        }
+    }
+
+    fetchData();
+    setInterval(fetchData, 15000);
+});
