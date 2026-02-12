@@ -1,69 +1,68 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Mushima-Shikongo Grain Dashboard</title>
+    <title>Mushima-Shikongo Grain</title>
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
 <div class="container">
 
-    <div class="header">
+    <header>
         <div>
             <h1>Mushima-Shikongo Grain</h1>
             <p class="subtitle">Smart Agriculture Intelligence Platform</p>
         </div>
-        <div id="status" class="status stable">SYSTEM: STABLE</div>
-    </div>
+        <div id="status" class="status stable">STABLE</div>
+    </header>
 
-    <div class="card large">
-        <h3>Crop Condition Score</h3>
-        <div class="health-container">
-            <div class="health-score-text">
-                <span id="health">--</span>/100
+    <section class="health-section">
+        <div class="health-left">
+            <h3>Crop Health Score</h3>
+            <div class="health-score">
+                <span id="health">--</span><small>/100</small>
             </div>
             <div class="health-bar">
-                <div id="healthFill" class="health-fill"></div>
+                <div id="healthFill"></div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <div class="grid">
+    <section class="metrics">
 
-        <div class="card">
-            <h4>Temperature</h4>
-            <p id="temp">--</p>
+        <div class="metric-card">
+            <label>Temperature</label>
+            <div id="temp" class="metric-value">--</div>
         </div>
 
-        <div class="card">
-            <h4>Humidity</h4>
-            <p id="humidity">--</p>
+        <div class="metric-card">
+            <label>Humidity</label>
+            <div id="humidity" class="metric-value">--</div>
         </div>
 
-        <div class="card">
-            <h4>Soil Moisture</h4>
-            <p id="soil">--</p>
+        <div class="metric-card">
+            <label>Soil Moisture</label>
+            <div id="soil" class="metric-value">--</div>
         </div>
 
-        <div class="card">
-            <h4>Irrigation</h4>
-            <p id="irrigation">--</p>
+        <div class="metric-card">
+            <label>Irrigation</label>
+            <div id="irrigation" class="metric-value">--</div>
         </div>
 
-        <div class="card">
-            <h4>Light</h4>
-            <p id="light">--</p>
+        <div class="metric-card">
+            <label>Light Level</label>
+            <div id="light" class="metric-value">--</div>
         </div>
 
-    </div>
+    </section>
 
 </div>
 
-<!-- 🚨 MODAL ALERT -->
+<!-- MODAL -->
 <div id="alertModal" class="modal">
-    <div class="modal-content">
-        <h2>⚠ CRITICAL ALERT</h2>
+    <div class="modal-box">
+        <h2>⚠ Critical Condition</h2>
         <p id="alertMessage"></p>
         <button onclick="closeModal()">Dismiss</button>
     </div>
