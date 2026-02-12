@@ -1,127 +1,118 @@
 const channelID = "3258996";
-const readAPI = "KQOVOAKJ6NVNWL3K";
-const weatherApiKey = "353c8dee2b841991e6cb38f83b4736de";
+const readAPIKey = "KQOVOAKJ6NVNWL3K";
 
-const lat = -17.5;
-const lon = 17.0;
-
-const dataURL =
-`https://api.thingspeak.com/channels/${channelID}/feeds.json?api_key=${readAPI}&results=24`;
-
-const weatherURL =
-`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${weatherApiKey}&units=metric`;
-
-let tempChart, soilChart;
+const url = `https://api.thingspeak.com/channels/${channelID}/feeds.json?api_key=${readAPIKey}&results=1`;
 
 async function fetchData() {
-    const response = await fetch(dataURL);
-    const data = await response.json();
-    const feeds = data.feeds;
-    if (!feeds) return;
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
 
-    const temps = feeds.map(f => parseFloat(f.field1));
-    const soils = feeds.map(f => parseFloat(f.field3));
+        const feed = data.feeds[0];
 
-    const latestTemp = temps.at(-1);
-    const latestSoil = soils.at(-1);
+        const temperature = parseFloat(feed.field1);
+        const humidity = parseFloat(feed.field2);
+        const soil = parseFloat(feed.field3);
+        const rain = parseInt(feed.field4);
+        const light = parseInt(feed.field5);
 
-    document.getElementById("temperature").innerText = latestTemp + " °C";
-    document.getElementById("soil").innerText = latestSoil + " %";
+        updateUI(temperature, humidity, soil, rain, light);
 
-    const avgTemp =
-        (temps.reduce((a,b)=>a+b,0)/temps.length).toFixed(1);
-
-    document.getElementById("tempStats").innerText =
-        `24-sample Avg: ${avgTemp}°C`;
-
-    let cropScore = 100;
-    if (latestSoil < 30) cropScore -= 25;
-    if (latestTemp > 38) cropScore -= 20;
-    if (latestSoil > 85) cropScore -= 20;
-
-    document.getElementById("cropScore").innerText = cropScore + "/100";
-
-    document.getElementById("systemHealth").innerText =
-        cropScore > 70 ? "SYSTEM: STABLE" :
-        cropScore > 40 ? "SYSTEM: WARNING" :
-        "SYSTEM: CRITICAL";
-
-    updateCharts(temps, soils);
-}
-
-async function fetchWeather() {
-    const response = await fetch(weatherURL);
-    const data = await response.json();
-    const forecast = data.list[0];
-
-    const temp = forecast.main.temp;
-    const condition = forecast.weather[0].main;
-    const rainProb = forecast.pop * 100;
-
-    document.getElementById("weatherTemp").innerText = temp + " °C";
-    document.getElementById("weatherCondition").innerText = condition;
-    document.getElementById("rainProbability").innerText =
-        `Rain Probability: ${rainProb.toFixed(0)}%`;
-}
-
-function updateCharts(tempData, soilData) {
-
-    const labels = tempData.map((_, i) => i);
-
-    if (!tempChart) {
-
-        tempChart = new Chart(document.getElementById("tempChart"), {
-            type: "line",
-            data: {
-                labels,
-                datasets: [{
-                    label: "Temperature (°C)",
-                    data: tempData,
-                    borderColor: "#7c3aed",
-                    backgroundColor: "rgba(124,58,237,0.1)",
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                animation: { duration: 1200 },
-                plugins: {
-                    legend: { display: true }
-                }
-            }
-        });
-
-        soilChart = new Chart(document.getElementById("soilChart"), {
-            type: "line",
-            data: {
-                labels,
-                datasets: [{
-                    label: "Soil Moisture (%)",
-                    data: soilData,
-                    borderColor: "#111",
-                    backgroundColor: "rgba(0,0,0,0.05)",
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                animation: { duration: 1200 },
-                plugins: {
-                    legend: { display: true }
-                }
-            }
-        });
-
-    } else {
-        tempChart.data.datasets[0].data = tempData;
-        soilChart.data.datasets[0].data = soilData;
-        tempChart.update();
-        soilChart.update();
+    } catch (error) {
+        console.error("Error fetching data:", error);
     }
 }
 
-fetchData();
-fetchWeather();
+function updateUI(temp, hum, soil, rain, light) {
 
-setInterval(fetchData, 15000);
-setInterval(fetchWeather, 600000);
+    document.getElementById("temp").innerText = temp.toFixed(1) + " °C";
+    document.getElementById("humidity").innerText = hum.toFixed(1) + " %";
+    document.getElementById("soil").innerText = soil.toFixed(0) + " %";
+    document.getElementById("rain").innerText = rain === 1 ? "YES" : "NO";
+    document.getElementById("light").innerText = light === 1 ? "BRIGHT" : "DARK";
+
+    const healthScore = calculateCropHealth(soil, temp);
+    document.getElementById("health").innerText = healthScore + " / 100";
+
+    updateStatusBadge(healthScore);
+
+    evaluateAlerts(soil, temp, rain, light);
+}
+
+function calculateCropHealth(soil, temp) {
+
+    let score = 100;
+
+    // Severe drought
+    if (soil <= 10) score -= 60;
+    else if (soil <= 20) score -= 45;
+    else if (soil <= 30) score -= 25;
+
+    // Flood risk
+    if (soil >= 90) score -= 50;
+    else if (soil >= 80) score -= 30;
+
+    // Heat stress
+    if (temp >= 45) score -= 30;
+    else if (temp >= 40) score -= 20;
+
+    return Math.max(0, score);
+}
+
+function updateStatusBadge(score) {
+
+    const badge = document.getElementById("status");
+
+    if (score >= 70) {
+        badge.innerText = "STABLE";
+        badge.className = "status stable";
+    }
+    else if (score >= 40) {
+        badge.innerText = "WARNING";
+        badge.className = "status warning";
+    }
+    else {
+        badge.innerText = "CRITICAL";
+        badge.className = "status critical";
+    }
+}
+
+function evaluateAlerts(soil, temp, rain, light) {
+
+    const alertBox = document.getElementById("alertBox");
+
+    // Severe drought
+    if (soil < 20 && rain === 0 && light === 1) {
+        showAlert("CRITICAL: Severe drought detected. Immediate irrigation required.");
+        return;
+    }
+
+    // Heat stress
+    if (temp > 42) {
+        showAlert("WARNING: High temperature stress detected.");
+        return;
+    }
+
+    // Flood condition
+    if (soil > 90) {
+        showAlert("WARNING: Soil oversaturation detected.");
+        return;
+    }
+
+    hideAlert();
+}
+
+function showAlert(message) {
+    const alertBox = document.getElementById("alertBox");
+    alertBox.innerText = message;
+    alertBox.style.display = "block";
+}
+
+function hideAlert() {
+    const alertBox = document.getElementById("alertBox");
+    alertBox.style.display = "none";
+}
+
+// Auto refresh every 10 seconds
+setInterval(fetchData, 10000);
+fetchData();

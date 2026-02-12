@@ -1,64 +1,61 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Mushima-Shikongo Grain Intelligence</title>
+    <title>Mushima-Shikongo Grain Dashboard</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
 
 <div class="container">
 
-    <header>
+    <h1>Mushima-Shikongo Grain</h1>
+    <p class="subtitle">Smart Agriculture Monitoring System</p>
+
+    <!-- Alert Banner -->
+    <div id="alertBox" class="alert-box"></div>
+
+    <!-- Status Section -->
+    <div class="status-section">
         <div>
-            <h1>Mushima-Shikongo Grain</h1>
-            <p class="subtitle">Smart Agriculture Intelligence Platform</p>
+            <h3>System Status</h3>
+            <span id="status" class="status">Loading...</span>
         </div>
-        <div id="systemHealth" class="badge">SYSTEM: --</div>
-    </header>
+        <div>
+            <h3>Crop Health</h3>
+            <span id="health" class="health-score">-- / 100</span>
+        </div>
+    </div>
 
-    <section class="metrics">
+    <!-- Metrics Grid -->
+    <div class="grid">
 
-        <div class="card large">
-            <h3>Crop Condition Score</h3>
-            <div class="score" id="cropScore">--</div>
-            <p id="soilStress"></p>
+        <div class="card">
+            <h4>Temperature</h4>
+            <p id="temp">--</p>
         </div>
 
         <div class="card">
-            <h3>Temperature</h3>
-            <p class="value" id="temperature">-- °C</p>
-            <p class="meta" id="tempStats"></p>
+            <h4>Humidity</h4>
+            <p id="humidity">--</p>
         </div>
 
         <div class="card">
-            <h3>Soil Moisture</h3>
-            <p class="value" id="soil">-- %</p>
+            <h4>Soil Moisture</h4>
+            <p id="soil">--</p>
         </div>
 
         <div class="card">
-            <h3>Irrigation</h3>
-            <p class="value" id="irrigation"></p>
+            <h4>Rain Detected</h4>
+            <p id="rain">--</p>
         </div>
 
         <div class="card">
-            <h3>Weather</h3>
-            <p class="value" id="weatherTemp">-- °C</p>
-            <p class="meta" id="weatherCondition"></p>
-            <p class="meta" id="rainProbability"></p>
+            <h4>Light Level</h4>
+            <p id="light">--</p>
         </div>
 
-    </section>
-
-    <section class="charts">
-        <div class="chart-card">
-            <canvas id="tempChart"></canvas>
-        </div>
-
-        <div class="chart-card">
-            <canvas id="soilChart"></canvas>
-        </div>
-    </section>
+    </div>
 
 </div>
 
