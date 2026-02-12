@@ -3,25 +3,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const channelID = "3258996";
     const readAPIKey = "KQOVOAKJ6NVNWL3K";
 
-    const url = `https://api.thingspeak.com/channels/${channelID}/feeds.json?api_key=${readAPIKey}&results=20`;
+    const url =
+      `https://api.thingspeak.com/channels/${channelID}/feeds.json?api_key=${readAPIKey}&results=20`;
 
-    let tempChart = null;
-    let soilChart = null;
+    let tempChart;
+    let soilChart;
 
     async function fetchData() {
         try {
             const response = await fetch(url);
-
-            if (!response.ok) {
-                console.error("HTTP ERROR:", response.status);
-                return;
-            }
-
             const data = await response.json();
-            console.log("ThingSpeak Response:", data);
+
+            console.log("ThingSpeak Data:", data);
 
             if (!data.feeds || data.feeds.length === 0) {
-                console.warn("No data in channel.");
+                console.warn("No feeds returned.");
                 return;
             }
 
@@ -32,12 +28,11 @@ document.addEventListener("DOMContentLoaded", () => {
             updateCharts(feeds);
 
         } catch (error) {
-            console.error("Fetch failed:", error);
+            console.error("Fetch Error:", error);
         }
     }
 
     function updateUI(feed) {
-
         const temp = parseFloat(feed.field1) || 0;
         const hum = parseFloat(feed.field2) || 0;
         const soil = parseFloat(feed.field3) || 0;
@@ -50,9 +45,9 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("rain").innerText = rain ? "YES" : "NO";
         document.getElementById("light").innerText = light ? "BRIGHT" : "DARK";
 
-        const health = soil < 30 ? 60 : 90;
-        document.getElementById("health").innerText = health;
-        document.getElementById("healthFill").style.width = health + "%";
+        document.getElementById("health").innerText = soil < 30 ? 60 : 90;
+        document.getElementById("healthFill").style.width =
+            (soil < 30 ? 60 : 90) + "%";
     }
 
     function updateCharts(feeds) {
@@ -71,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 {
                     type: "line",
                     data: {
-                        labels,
+                        labels: labels,
                         datasets: [{
                             label: "Temperature (°C)",
                             data: temps,
@@ -93,7 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 {
                     type: "line",
                     data: {
-                        labels,
+                        labels: labels,
                         datasets: [{
                             label: "Soil Moisture (%)",
                             data: soils,
@@ -111,7 +106,6 @@ document.addEventListener("DOMContentLoaded", () => {
             );
 
         } else {
-
             tempChart.data.labels = labels;
             tempChart.data.datasets[0].data = temps;
             tempChart.update();
