@@ -74,4 +74,45 @@ body {
 .charts-section {
     margin-top: 60px;
     display: grid;
-    grid-template-columns: repeat(auto-fit, m
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+    gap: 30px;
+}
+
+.chart-card {
+    background: #1f2937;
+    padding: 25px;
+    border-radius: 18px;
+    height: 350px;
+}
+
+canvas {
+    width: 100% !important;
+    height: 280px !important;
+}
+
+.toast-container {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+}
+.toast {
+    background: #1f2937;
+    color: #f9fafb;
+    padding: 15px 25px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    animation: fadeInOut 4s ease forwards;
+}
+.chart-card {
+    background: #1f2937;
+    padding: 25px;
+    border-radius: 18px;
+    height: 350px;
+}
+
+canvas {
+    display: block;
+    width: 100% !important;
+    height: 280px !important;
+}
