@@ -9,25 +9,26 @@
 
 <div class="container">
 
-    <h1>Mushima-Shikongo Grain</h1>
-    <p class="subtitle">Smart Agriculture Monitoring System</p>
-
-    <!-- Alert Banner -->
-    <div id="alertBox" class="alert-box"></div>
-
-    <!-- Status Section -->
-    <div class="status-section">
+    <div class="header">
         <div>
-            <h3>System Status</h3>
-            <span id="status" class="status">Loading...</span>
+            <h1>Mushima-Shikongo Grain</h1>
+            <p class="subtitle">Smart Agriculture Intelligence Platform</p>
         </div>
-        <div>
-            <h3>Crop Health</h3>
-            <span id="health" class="health-score">-- / 100</span>
+        <div id="status" class="status stable">SYSTEM: STABLE</div>
+    </div>
+
+    <div class="card large">
+        <h3>Crop Condition Score</h3>
+        <div class="health-container">
+            <div class="health-score-text">
+                <span id="health">--</span>/100
+            </div>
+            <div class="health-bar">
+                <div id="healthFill" class="health-fill"></div>
+            </div>
         </div>
     </div>
 
-    <!-- Metrics Grid -->
     <div class="grid">
 
         <div class="card">
@@ -46,17 +47,26 @@
         </div>
 
         <div class="card">
-            <h4>Rain Detected</h4>
-            <p id="rain">--</p>
+            <h4>Irrigation</h4>
+            <p id="irrigation">--</p>
         </div>
 
         <div class="card">
-            <h4>Light Level</h4>
+            <h4>Light</h4>
             <p id="light">--</p>
         </div>
 
     </div>
 
+</div>
+
+<!-- 🚨 MODAL ALERT -->
+<div id="alertModal" class="modal">
+    <div class="modal-content">
+        <h2>⚠ CRITICAL ALERT</h2>
+        <p id="alertMessage"></p>
+        <button onclick="closeModal()">Dismiss</button>
+    </div>
 </div>
 
 <script src="script.js"></script>
