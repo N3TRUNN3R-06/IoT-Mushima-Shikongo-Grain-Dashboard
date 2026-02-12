@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
         `https://api.thingspeak.com/channels/${channelID}/feeds.json?api_key=${readAPI}&results=20`;
 
     let tempChart, soilChart;
-    let lastAlertLevel = "stable";
+    let lastAlertLevel = "null";
 
     async function fetchData() {
 
