@@ -1,8 +1,8 @@
 const channelID = "3258996";
 const readAPIKey = "KQOVOAKJ6NVNWL3K";
+const url = `https://api.thingspeak.com/channels/${channelID}/feeds.json?api_key=${readAPIKey}&results=15`;
 
-const url = `https://api.thingspeak.com/channels/${channelID}/feeds.json?api_key=${readAPIKey}&results=1`;
-
+let tempChart, soilChart;
 let lastAlertLevel = "stable";
 
 async function fetchData() {
@@ -10,30 +10,31 @@ async function fetchData() {
         const response = await fetch(url);
         const data = await response.json();
 
-        if (!data.feeds || data.feeds.length === 0) return;
+        const feeds = data.feeds;
+        if (!feeds || feeds.length === 0) return;
 
-        const feed = data.feeds[0];
+        const latest = feeds[feeds.length - 1];
 
-        const temperature = parseFloat(feed.field1) || 0;
-        const humidity = parseFloat(feed.field2) || 0;
-        const soil = parseFloat(feed.field3) || 0;
-        const rain = parseInt(feed.field4) || 0;
-        const light = parseInt(feed.field5) || 0;
+        const temp = parseFloat(latest.field1) || 0;
+        const hum = parseFloat(latest.field2) || 0;
+        const soil = parseFloat(latest.field3) || 0;
+        const rain = parseInt(latest.field4) || 0;
+        const light = parseInt(latest.field5) || 0;
 
-        updateUI(temperature, humidity, soil, rain, light);
+        updateUI(temp, hum, soil, rain, light);
+        updateCharts(feeds);
 
-    } catch (error) {
-        console.error("Fetch error:", error);
+    } catch (err) {
+        console.error(err);
     }
 }
 
 function updateUI(temp, hum, soil, rain, light) {
-
     document.getElementById("temp").innerText = `${temp.toFixed(1)} °C`;
     document.getElementById("humidity").innerText = `${hum.toFixed(1)} %`;
     document.getElementById("soil").innerText = `${soil.toFixed(0)} %`;
-    document.getElementById("rain").innerText = rain === 1 ? "YES" : "NO";
-    document.getElementById("light").innerText = light === 1 ? "BRIGHT" : "DARK";
+    document.getElementById("rain").innerText = rain ? "YES" : "NO";
+    document.getElementById("light").innerText = light ? "BRIGHT" : "DARK";
 
     const health = calculateHealth(soil, temp, hum, rain);
 
@@ -41,16 +42,12 @@ function updateUI(temp, hum, soil, rain, light) {
     document.getElementById("healthFill").style.width = health + "%";
 
     updateStatus(health);
-    updateHealthColor(health);
 
-    const irrigationDecision = irrigationLogic(soil, rain, light);
-    document.getElementById("irrigation").innerText = irrigationDecision;
-
-    handleNotifications(health, soil, rain, light);
+    document.getElementById("irrigation").innerText =
+        irrigationLogic(soil, rain, light);
 }
 
 function calculateHealth(soil, temp, hum, rain) {
-
     let score = 100;
 
     if (soil <= 5) score -= 70;
@@ -59,97 +56,80 @@ function calculateHealth(soil, temp, hum, rain) {
     else if (soil <= 35) score -= 20;
 
     if (soil >= 90) score -= 50;
-
     if (temp >= 45) score -= 25;
     else if (temp >= 40) score -= 15;
-
-    if (hum <= 20) score -= 10;
-    if (hum >= 90) score -= 10;
-
+    if (hum <= 20 || hum >= 90) score -= 10;
     if (soil < 25 && rain === 1) score += 10;
 
     return Math.max(0, Math.min(100, score));
 }
 
 function irrigationLogic(soil, rain, light) {
-
-    if (soil < 25 && rain === 0 && light === 1)
-        return "IRRIGATION REQUIRED";
-
-    if (soil < 25 && rain === 1)
-        return "RAIN DETECTED – WAIT";
-
-    if (light === 0)
-        return "WAIT – NIGHT";
-
+    if (soil < 25 && rain === 0 && light === 1) return "IRRIGATION REQUIRED";
+    if (soil < 25 && rain === 1) return "RAIN DETECTED – WAIT";
+    if (light === 0) return "WAIT – NIGHT";
     return "NOT REQUIRED";
 }
 
 function updateStatus(score) {
-
     const badge = document.getElementById("status");
-
     if (score >= 70) {
         badge.className = "status stable";
         badge.innerText = "SYSTEM: STABLE";
-    }
-    else if (score >= 40) {
+    } else if (score >= 40) {
         badge.className = "status warning";
         badge.innerText = "SYSTEM: WARNING";
-    }
-    else {
+    } else {
         badge.className = "status critical";
         badge.innerText = "SYSTEM: CRITICAL";
     }
 }
 
-function updateHealthColor(score) {
-    const fill = document.getElementById("healthFill");
+function updateCharts(feeds) {
+    const labels = feeds.map((_, i) => i + 1);
+    const temps = feeds.map(f => parseFloat(f.field1) || 0);
+    const soils = feeds.map(f => parseFloat(f.field3) || 0);
 
-    if (score >= 70)
-        fill.style.background = "#22c55e";
-    else if (score >= 40)
-        fill.style.background = "#fbbf24";
-    else
-        fill.style.background = "#ef4444";
-}
+    if (!tempChart) {
+        tempChart = new Chart(document.getElementById("tempChart"), {
+            type: "line",
+            data: {
+                labels,
+                datasets: [{
+                    label: "Temperature (°C)",
+                    data: temps,
+                    borderColor: "#22c55e",
+                    backgroundColor: "rgba(34,197,94,0.2)",
+                    fill: true,
+                    tension: 0.3
+                }]
+            }
+        });
 
-function handleNotifications(health, soil, rain, light) {
+        soilChart = new Chart(document.getElementById("soilChart"), {
+            type: "line",
+            data: {
+                labels,
+                datasets: [{
+                    label: "Soil Moisture (%)",
+                    data: soils,
+                    borderColor: "#fbbf24",
+                    backgroundColor: "rgba(251,191,36,0.2)",
+                    fill: true,
+                    tension: 0.3
+                }]
+            }
+        });
 
-    let currentLevel = "stable";
+    } else {
+        tempChart.data.labels = labels;
+        tempChart.data.datasets[0].data = temps;
+        tempChart.update();
 
-    if (health < 40) currentLevel = "critical";
-    else if (health < 70) currentLevel = "warning";
-
-    if (currentLevel !== lastAlertLevel) {
-
-        if (currentLevel === "warning")
-            showToast("⚠ Soil conditions suboptimal.", "warning");
-
-        if (currentLevel === "critical")
-            showToast("🚨 Immediate irrigation required!", "critical");
-
-        lastAlertLevel = currentLevel;
+        soilChart.data.labels = labels;
+        soilChart.data.datasets[0].data = soils;
+        soilChart.update();
     }
-
-    if (soil < 25 && rain === 0 && light === 1)
-        showToast("💧 Irrigation Recommended Now.", "critical");
-}
-
-function showToast(message, type) {
-
-    const container = document.getElementById("toastContainer");
-
-    const toast = document.createElement("div");
-    toast.classList.add("toast", type);
-    toast.innerText = message;
-
-    container.appendChild(toast);
-
-    setTimeout(() => {
-        toast.classList.add("hide");
-        setTimeout(() => toast.remove(), 300);
-    }, 4000);
 }
 
 setInterval(fetchData, 10000);
