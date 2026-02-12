@@ -6,21 +6,27 @@
 </head>
 <body>
 
-<div class="container">
+<div class="dashboard">
 
-    <header>
+    <!-- HEADER -->
+    <header class="topbar">
         <div>
             <h1>Mushima-Shikongo Grain</h1>
-            <p class="subtitle">Smart Agriculture Intelligence Platform</p>
+            <p class="subtitle">Smart Agriculture Monitoring Platform</p>
         </div>
-        <div id="status" class="status stable">STABLE</div>
+
+        <div id="status" class="status stable">
+            STABLE
+        </div>
     </header>
 
-    <section class="health-section">
+    <!-- HEALTH SECTION -->
+    <section class="health-card">
         <div class="health-left">
             <h3>Crop Health Score</h3>
-            <div class="health-score">
-                <span id="health">--</span><small>/100</small>
+            <div class="health-number">
+                <span id="health">--</span>
+                <small>/100</small>
             </div>
             <div class="health-bar">
                 <div id="healthFill"></div>
@@ -28,45 +34,45 @@
         </div>
     </section>
 
-    <section class="metrics">
+    <!-- METRICS -->
+    <section class="metrics-grid">
 
-        <div class="metric-card">
+        <div class="metric">
             <label>Temperature</label>
-            <div id="temp" class="metric-value">--</div>
+            <div id="temp" class="value">--</div>
         </div>
 
-        <div class="metric-card">
+        <div class="metric">
             <label>Humidity</label>
-            <div id="humidity" class="metric-value">--</div>
+            <div id="humidity" class="value">--</div>
         </div>
 
-        <div class="metric-card">
+        <div class="metric">
             <label>Soil Moisture</label>
-            <div id="soil" class="metric-value">--</div>
+            <div id="soil" class="value">--</div>
         </div>
 
-        <div class="metric-card">
-            <label>Irrigation</label>
-            <div id="irrigation" class="metric-value">--</div>
+        <div class="metric">
+            <label>Rainfall</label>
+            <div id="rain" class="value">--</div>
         </div>
 
-        <div class="metric-card">
+        <div class="metric">
             <label>Light Level</label>
-            <div id="light" class="metric-value">--</div>
+            <div id="light" class="value">--</div>
+        </div>
+
+        <div class="metric">
+            <label>Irrigation</label>
+            <div id="irrigation" class="value">--</div>
         </div>
 
     </section>
 
 </div>
 
-<!-- MODAL -->
-<div id="alertModal" class="modal">
-    <div class="modal-box">
-        <h2>⚠ Critical Condition</h2>
-        <p id="alertMessage"></p>
-        <button onclick="closeModal()">Dismiss</button>
-    </div>
-</div>
+<!-- Toast Container -->
+<div id="toastContainer" class="toast-container"></div>
 
 <script src="script.js"></script>
 </body>
