@@ -1,18 +1,19 @@
 const channelID = "3258996";
-const readAPIKey = "KQOVOAKJ6NVNWL3K";
-const url = `https://api.thingspeak.com/channels/${channelID}/feeds.json?api_key=${readAPIKey}&results=15`;
+const readAPIKey = "thingspeak"; // YOUR READ KEY
 
-let tempChart, soilChart;
-let lastAlertLevel = "stable";
+const url = `https://api.thingspeak.com/channels/${channelID}/feeds.json?api_key=${readAPIKey}&results=20`;
+
+let tempChart = null;
+let soilChart = null;
 
 async function fetchData() {
     try {
         const response = await fetch(url);
         const data = await response.json();
 
-        const feeds = data.feeds;
-        if (!feeds || feeds.length === 0) return;
+        if (!data.feeds || data.feeds.length === 0) return;
 
+        const feeds = data.feeds;
         const latest = feeds[feeds.length - 1];
 
         const temp = parseFloat(latest.field1) || 0;
@@ -24,8 +25,8 @@ async function fetchData() {
         updateUI(temp, hum, soil, rain, light);
         updateCharts(feeds);
 
-    } catch (err) {
-        console.error(err);
+    } catch (error) {
+        console.error("API Error:", error);
     }
 }
 
@@ -37,60 +38,32 @@ function updateUI(temp, hum, soil, rain, light) {
     document.getElementById("light").innerText = light ? "BRIGHT" : "DARK";
 
     const health = calculateHealth(soil, temp, hum, rain);
-
     document.getElementById("health").innerText = health;
     document.getElementById("healthFill").style.width = health + "%";
-
-    updateStatus(health);
-
-    document.getElementById("irrigation").innerText =
-        irrigationLogic(soil, rain, light);
 }
 
 function calculateHealth(soil, temp, hum, rain) {
     let score = 100;
 
-    if (soil <= 5) score -= 70;
-    else if (soil <= 15) score -= 55;
-    else if (soil <= 25) score -= 35;
-    else if (soil <= 35) score -= 20;
-
-    if (soil >= 90) score -= 50;
-    if (temp >= 45) score -= 25;
-    else if (temp >= 40) score -= 15;
+    if (soil <= 25) score -= 40;
+    if (temp >= 40) score -= 15;
     if (hum <= 20 || hum >= 90) score -= 10;
     if (soil < 25 && rain === 1) score += 10;
 
     return Math.max(0, Math.min(100, score));
 }
 
-function irrigationLogic(soil, rain, light) {
-    if (soil < 25 && rain === 0 && light === 1) return "IRRIGATION REQUIRED";
-    if (soil < 25 && rain === 1) return "RAIN DETECTED – WAIT";
-    if (light === 0) return "WAIT – NIGHT";
-    return "NOT REQUIRED";
-}
-
-function updateStatus(score) {
-    const badge = document.getElementById("status");
-    if (score >= 70) {
-        badge.className = "status stable";
-        badge.innerText = "SYSTEM: STABLE";
-    } else if (score >= 40) {
-        badge.className = "status warning";
-        badge.innerText = "SYSTEM: WARNING";
-    } else {
-        badge.className = "status critical";
-        badge.innerText = "SYSTEM: CRITICAL";
-    }
-}
-
 function updateCharts(feeds) {
-    const labels = feeds.map((_, i) => i + 1);
+
+    const labels = feeds.map(feed =>
+        new Date(feed.created_at).toLocaleTimeString()
+    );
+
     const temps = feeds.map(f => parseFloat(f.field1) || 0);
     const soils = feeds.map(f => parseFloat(f.field3) || 0);
 
     if (!tempChart) {
+
         tempChart = new Chart(document.getElementById("tempChart"), {
             type: "line",
             data: {
@@ -99,10 +72,14 @@ function updateCharts(feeds) {
                     label: "Temperature (°C)",
                     data: temps,
                     borderColor: "#22c55e",
-                    backgroundColor: "rgba(34,197,94,0.2)",
+                    backgroundColor: "rgba(34,197,94,0.15)",
                     fill: true,
-                    tension: 0.3
+                    tension: 0.4
                 }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
             }
         });
 
@@ -114,14 +91,19 @@ function updateCharts(feeds) {
                     label: "Soil Moisture (%)",
                     data: soils,
                     borderColor: "#fbbf24",
-                    backgroundColor: "rgba(251,191,36,0.2)",
+                    backgroundColor: "rgba(251,191,36,0.15)",
                     fill: true,
-                    tension: 0.3
+                    tension: 0.4
                 }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
             }
         });
 
     } else {
+
         tempChart.data.labels = labels;
         tempChart.data.datasets[0].data = temps;
         tempChart.update();

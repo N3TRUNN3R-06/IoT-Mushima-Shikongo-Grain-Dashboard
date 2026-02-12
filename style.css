@@ -20,7 +20,6 @@ body {
     margin-bottom: 50px;
 }
 
-h1 { margin: 0; font-size: 30px; }
 .subtitle { color: #9ca3af; font-size: 14px; }
 
 .status {
@@ -41,11 +40,7 @@ h1 { margin: 0; font-size: 30px; }
     margin-bottom: 40px;
 }
 
-.health-number {
-    font-size: 60px;
-    font-weight: 700;
-    margin-top: 15px;
-}
+.health-number { font-size: 60px; font-weight: 700; margin-top: 15px; }
 
 .health-bar {
     margin-top: 20px;
@@ -79,28 +74,4 @@ h1 { margin: 0; font-size: 30px; }
 .charts-section {
     margin-top: 60px;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 30px;
-}
-
-.chart-card {
-    background: #1f2937;
-    padding: 25px;
-    border-radius: 18px;
-}
-
-.toast-container {
-    position: fixed;
-    top: 30px;
-    right: 30px;
-}
-
-.toast {
-    padding: 16px 20px;
-    border-radius: 12px;
-    margin-bottom: 10px;
-    color: white;
-}
-
-.toast.warning { background: #fbbf24; }
-.toast.critical { background: #ef4444; }
+    grid-template-columns: repeat(auto-fit, m
