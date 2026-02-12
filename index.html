@@ -1,12 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Mushima-Shikongo Grain</title>
+    <meta charset="UTF-8">
+    <title>Mushima-Shikongo Grain | Smart Agriculture Monitoring</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="dashboard">
+<main class="dashboard">
 
     <!-- HEADER -->
     <header class="topbar">
@@ -16,21 +18,21 @@
         </div>
 
         <div id="status" class="status stable">
-            STABLE
+            SYSTEM: STABLE
         </div>
     </header>
 
     <!-- HEALTH SECTION -->
     <section class="health-card">
-        <div class="health-left">
-            <h3>Crop Health Score</h3>
-            <div class="health-number">
-                <span id="health">--</span>
-                <small>/100</small>
-            </div>
-            <div class="health-bar">
-                <div id="healthFill"></div>
-            </div>
+        <h3>Crop Health Score</h3>
+
+        <div class="health-number">
+            <span id="health" aria-live="polite">--</span>
+            <small>/100</small>
+        </div>
+
+        <div class="health-bar">
+            <div id="healthFill"></div>
         </div>
     </section>
 
@@ -63,15 +65,15 @@
         </div>
 
         <div class="metric">
-            <label>Irrigation</label>
+            <label>Irrigation Decision</label>
             <div id="irrigation" class="value">--</div>
         </div>
 
     </section>
 
-</div>
+</main>
 
-<!-- Toast Container -->
+<!-- Toast Notifications -->
 <div id="toastContainer" class="toast-container"></div>
 
 <script src="script.js"></script>
